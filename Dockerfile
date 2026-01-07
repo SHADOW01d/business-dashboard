@@ -22,7 +22,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Ensure psycopg3 is installed (works with Python 3.13)
-RUN pip install --no-cache-dir "psycopg[binary]==3.1.19"
+RUN pip install --no-cache-dir "psycopg[binary]==3.3.2"
 
 # Copy project
 COPY . .
