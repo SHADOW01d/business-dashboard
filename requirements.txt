@@ -3,3 +3,5 @@ djangorestframework==3.14.0
 django-cors-headers==4.3.1
 sendgrid==6.11.0
 twilio==9.0.0
+dj-database-url==2.1.0
+gunicorn==21.2.0

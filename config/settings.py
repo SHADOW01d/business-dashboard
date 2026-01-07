@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -20,10 +21,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-04o93@yg^%94#$3v9f53+#1v%wqubf&xf8@3f9fhqok4-o4$i5'
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-04o93@yg^%94#$3v9f53+#1v%wqubf&xf8@3f9fhqok4-o4$i5')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', 'True').lower() == 'true'
 
 ALLOWED_HOSTS = [
     '*',  # Allow all hosts for development
@@ -36,6 +37,13 @@ ALLOWED_HOSTS = [
     'testserver',  # For Django test client
     'b9c5f2395fe5.ngrok-free.app',  # ngrok backend tunnel
 ]
+
+# Production hosts for Render
+if not DEBUG:
+    ALLOWED_HOSTS.extend([
+        '.onrender.com',
+        'business-dashboard-backend.onrender.com',
+    ])
 
 
 # Application definition
@@ -94,16 +102,24 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": "postgres",  # ← CHANGE THIS to 'postgres' (not 'business_dashboard_db')
-        "USER": "postgres",
-        "PASSWORD": "iamchosen1",
-        "HOST": "db.lpajeltvykjjfnhljocj.supabase.co",
-        "PORT": "5432",
+# Use DATABASE_URL if available (Render), otherwise use Supabase config
+if os.environ.get('DATABASE_URL'):
+    import dj_database_url
+    DATABASES = {
+        'default': dj_database_url.parse(os.environ.get('DATABASE_URL'))
     }
-}
+else:
+    # Supabase configuration (your existing setup)
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": "postgres",  # ← CHANGE THIS to 'postgres' (not 'business_dashboard_db')
+            "USER": "postgres",
+            "PASSWORD": "iamchosen1",
+            "HOST": "db.lpajeltvykjjfnhljocj.supabase.co",
+            "PORT": "5432",
+        }
+    }
 
 
 # Password validation
@@ -200,3 +216,30 @@ REST_FRAMEWORK = {
 
 # Ensure CSRF token is always set
 CSRF_USE_SESSIONS = False
+
+# Production Security Settings
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True
+    SECURE_HSTS_SECONDS = 31536000
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    SECURE_BROWSER_XSS_FILTER = True
+    X_FRAME_OPTIONS = 'DENY'
+    
+    # Update CSRF and CORS for production
+    CSRF_TRUSTED_ORIGINS = [
+        "https://business-dashboard-frontend.onrender.com",
+        "https://business-dashboard-backend.onrender.com",
+    ]
+    
+    CORS_ALLOWED_ORIGINS = [
+        "https://business-dashboard-frontend.onrender.com",
+        "https://business-dashboard-backend.onrender.com",
+    ]
+    
+    # Session security
+    SESSION_COOKIE_SECURE = True
+    SESSION_COOKIE_HTTPONLY = True
+    SESSION_COOKIE_SAMESITE = 'Lax'
+    CSRF_COOKIE_SECURE = True
