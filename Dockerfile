@@ -21,8 +21,8 @@ RUN apt-get update \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Ensure psycopg2-binary is installed (works with Python 3.11)
-RUN pip install --no-cache-dir psycopg2-binary==2.9.9
+# Ensure psycopg3 is installed (works with Python 3.13)
+RUN pip install --no-cache-dir "psycopg[binary]==3.1.19"
 
 # Copy project
 COPY . .
