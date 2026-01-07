@@ -21,8 +21,8 @@ RUN apt-get update \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Install gunicorn for production
-RUN pip install gunicorn
+# Ensure psycopg2-binary is installed
+RUN pip install --no-cache-dir psycopg2-binary==2.9.9
 
 # Copy project
 COPY . .
