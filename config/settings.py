@@ -164,9 +164,10 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # CORS Settings
-CORS_ALLOW_ALL_ORIGINS = True  # Allow all origins for development
+CORS_ALLOW_ALL_ORIGINS = False  # Disable for production
 
 CORS_ALLOWED_ORIGINS = [
+    # Development URLs
     "http://localhost:3000",
     "http://127.0.0.1:3000",
     "http://localhost:3001",
@@ -176,6 +177,10 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:8000",
     "http://192.168.1.162:8000",
     "https://090180cf6f5f.ngrok-free.app",  # ngrok frontend tunnel
+    
+    # Production URLs
+    "https://business-dashboard-frontend.onrender.com",
+    "https://business-dashboard-1backend.onrender.com",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
@@ -187,13 +192,17 @@ CORS_EXPOSE_HEADERS = [
 
 # CSRF Settings
 CSRF_TRUSTED_ORIGINS = [
+    # Development URLs
     "http://localhost:3000",
     "http://127.0.0.1:3000",
     "http://192.168.1.162:3000",
     "http://localhost:8000",
     "http://127.0.0.1:8000",
     "http://192.168.1.162:8000",
-    "http://*",  # Allow all HTTP origins for development
+    
+    # Production URLs
+    "https://business-dashboard-frontend.onrender.com",
+    "https://business-dashboard-1backend.onrender.com",
 ]
 
 CSRF_COOKIE_SECURE = False  # Set to True in production with HTTPS
@@ -230,12 +239,12 @@ if not DEBUG:
     # Update CSRF and CORS for production
     CSRF_TRUSTED_ORIGINS = [
         "https://business-dashboard-frontend.onrender.com",
-        "https://business-dashboard-backend.onrender.com",
+        "https://business-dashboard-1backend.onrender.com",
     ]
     
     CORS_ALLOWED_ORIGINS = [
         "https://business-dashboard-frontend.onrender.com",
-        "https://business-dashboard-backend.onrender.com",
+        "https://business-dashboard-1backend.onrender.com",
     ]
     
     # Session security
