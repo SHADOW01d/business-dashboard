@@ -1,4 +1,4 @@
-# Use Python 3.11 slim image
+# Use Python 3.11 slim image (better compatibility)
 FROM python:3.11-slim
 
 # Set environment variables
@@ -21,8 +21,8 @@ RUN apt-get update \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Ensure psycopg is installed
-RUN pip install --no-cache-dir psycopg==3.1.19
+# Ensure psycopg2-binary is installed (works with Python 3.11)
+RUN pip install --no-cache-dir psycopg2-binary==2.9.9
 
 # Copy project
 COPY . .
