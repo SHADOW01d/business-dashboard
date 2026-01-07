@@ -39,5 +39,12 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:8000/api/auth/current_user/ || exit 1
 
+# Create startup script
+RUN echo '#!/bin/bash\n\
+python manage.py migrate --noinput\n\
+python manage.py collectstatic --noinput\n\
+gunicorn config.wsgi:application --bind 0.0.0.0:8000' > /app/start.sh && \
+chmod +x /app/start.sh
+
 # Start command
-CMD ["sh", "-c", "python manage.py migrate --noinput && python manage.py collectstatic --noinput && gunicorn config.wsgi:application --bind 0.0.0.0:8000"]
+CMD ["/app/start.sh"]
