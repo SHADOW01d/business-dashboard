@@ -102,6 +102,7 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+# Database Configuration
 # Use DATABASE_URL if available (Render), otherwise use Supabase config
 if os.environ.get('DATABASE_URL'):
     import dj_database_url
@@ -109,15 +110,18 @@ if os.environ.get('DATABASE_URL'):
         'default': dj_database_url.parse(os.environ.get('DATABASE_URL'))
     }
 else:
-    # Supabase configuration (your existing setup)
+    # Supabase configuration
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.postgresql",
-            "NAME": "postgres",  # ← CHANGE THIS to 'postgres' (not 'business_dashboard_db')
+            "NAME": "postgres",
             "USER": "postgres",
             "PASSWORD": "iamchosen1",
             "HOST": "db.lpajeltvykjjfnhljocj.supabase.co",
             "PORT": "5432",
+            "OPTIONS": {
+                "sslmode": "require",  # Required for Supabase
+            }
         }
     }
 

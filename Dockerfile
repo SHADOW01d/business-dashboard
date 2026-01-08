@@ -41,8 +41,13 @@ HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
 
 # Create startup script
 RUN echo '#!/bin/bash\n\
+echo "🔍 Testing database connection..."\n\
+python manage.py dbshell --command "SELECT 1;" && echo "✅ Database connection successful" || echo "❌ Database connection failed"\n\
+echo "🗄️ Running migrations..."\n\
 python manage.py migrate --noinput\n\
+echo "📁 Collecting static files..."\n\
 python manage.py collectstatic --noinput\n\
+echo "🚀 Starting server..."\n\
 gunicorn config.wsgi:application --bind 0.0.0.0:8000' > /app/start.sh && \
 chmod +x /app/start.sh
 
