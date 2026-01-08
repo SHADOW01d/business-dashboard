@@ -5,7 +5,9 @@ from django.contrib import admin
 from django.urls import path, include
 from django.http import JsonResponse
 from django.core.management import call_command
+from django.views.decorators.csrf import csrf_exempt
 
+@csrf_exempt
 def run_migrations_view(request):
     """Temporary endpoint to run migrations"""
     if request.method == 'POST':
