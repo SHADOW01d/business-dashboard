@@ -121,6 +121,8 @@ else:
             "PORT": "5432",
             "OPTIONS": {
                 "sslmode": "require",  # Required for Supabase
+                "connect_timeout": 60,  # Connection timeout
+                "options": "-c host=ipv4"  # Force IPv4
             }
         }
     }
