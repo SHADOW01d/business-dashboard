@@ -1,5 +1,5 @@
 services:
-  # Django Backend Service
+  # Django Backend Service - Updated build command
   - type: web
     name: business-dashboard-backend
     env: python
