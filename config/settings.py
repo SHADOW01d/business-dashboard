@@ -114,6 +114,8 @@ DATABASES = {
         "PORT": "5432",
         "OPTIONS": {
             "sslmode": "require",
+            "connect_timeout": 60,
+            "options": "-c host=ipv4"
         }
     }
 }
