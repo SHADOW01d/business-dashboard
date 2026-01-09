@@ -104,9 +104,10 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 # Database Configuration
 # Use DATABASE_URL in production (Render), fallback to hardcoded config for development
-if os.environ.get('DATABASE_URL'):
+database_url = os.environ.get('DATABASE_URL')
+if database_url and database_url.strip():
     DATABASES = {
-        'default': dj_database_url.parse(os.environ.get('DATABASE_URL'))
+        'default': dj_database_url.parse(database_url)
     }
 else:
     # Development/local database configuration
