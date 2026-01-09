@@ -187,6 +187,9 @@ CORS_ALLOWED_ORIGINS = [
     "https://business-dashboard-1-ijxo.onrender.com",  # Your frontend
 ]
 
+# Allow all origins for debugging (remove in production)
+CORS_ALLOW_ALL_ORIGINS = True
+
 CORS_ALLOW_CREDENTIALS = True
 
 CORS_EXPOSE_HEADERS = [
