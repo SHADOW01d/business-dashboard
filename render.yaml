@@ -40,10 +40,10 @@ services:
     routes:
       - type: rewrite
         source: /api/*
-        destination: https://business-dashboard-backend.onrender.com/api/*
+        destination: https://business-dashboard-1backend.onrender.com/api/*
       - type: rewrite
         source: /admin/*
-        destination: https://business-dashboard-backend.onrender.com/admin/*
+        destination: https://business-dashboard-1backend.onrender.com/admin/*
       - type: rewrite
         source: /*
         destination: /index.html
@@ -51,4 +51,4 @@ services:
     # Environment variables for frontend
     envVars:
       - key: VITE_API_URL  # Vite uses VITE_ prefix, not REACT_APP_
-        value: https://business-dashboard-backend.onrender.com
+        value: https://business-dashboard-1backend.onrender.com
