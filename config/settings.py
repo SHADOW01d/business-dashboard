@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 import os
 from pathlib import Path
+import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,6 +27,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-04o93@yg^%94#$3v9f53+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'True').lower() == 'true'
 
+# Dynamic ALLOWED_HOSTS for Render and local development
 ALLOWED_HOSTS = [
     '*',  # Allow all hosts for development
     'localhost',
@@ -38,12 +40,10 @@ ALLOWED_HOSTS = [
     'b9c5f2395fe5.ngrok-free.app',  # ngrok backend tunnel
 ]
 
-# Production hosts for Render
+# Add Render hosts from environment or default
 if not DEBUG:
-    ALLOWED_HOSTS.extend([
-        '.onrender.com',
-        'business-dashboard-backend.onrender.com',
-    ])
+    render_hosts = os.environ.get('ALLOWED_HOSTS', '.onrender.com,business-dashboard-1backend.onrender.com')
+    ALLOWED_HOSTS.extend([host.strip() for host in render_hosts.split(',')])
 
 
 # Application definition
@@ -103,20 +103,26 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 # Database Configuration
-# Render PostgreSQL configuration
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": "business_dashboard_db",
-        "USER": "business_dashboard_db_user",
-        "PASSWORD": "GoVQjYxEQRNWYcnodu3IdyPvSpR1gKi7",
-        "HOST": "dpg-d5g4fi6r433s73b1jma0-a.virginia-postgres.render.com",
-        "PORT": "5432",
-        "OPTIONS": {
-            "sslmode": "require",
+# Use DATABASE_URL in production (Render), fallback to hardcoded config for development
+if os.environ.get('DATABASE_URL'):
+    DATABASES = {
+        'default': dj_database_url.parse(os.environ.get('DATABASE_URL'))
+    }
+else:
+    # Development/local database configuration
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": "business_dashboard_db",
+            "USER": "business_dashboard_db_user",
+            "PASSWORD": "GoVQjYxEQRNWYcnodu3IdyPvSpR1gKi7",
+            "HOST": "dpg-d5g4fi6r433s73b1jma0-a.virginia-postgres.render.com",
+            "PORT": "5432",
+            "OPTIONS": {
+                "sslmode": "require",
+            }
         }
     }
-}
 
 
 # Password validation
