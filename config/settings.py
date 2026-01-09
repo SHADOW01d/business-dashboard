@@ -104,10 +104,11 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 # Database Configuration
 # Use DATABASE_URL if available (Render), otherwise use Supabase config
-if os.environ.get('DATABASE_URL'):
+database_url = os.environ.get('DATABASE_URL')
+if database_url and database_url.strip():
     import dj_database_url
     DATABASES = {
-        'default': dj_database_url.parse(os.environ.get('DATABASE_URL'))
+        'default': dj_database_url.parse(database_url)
     }
 else:
     # Supabase configuration (fallback)
