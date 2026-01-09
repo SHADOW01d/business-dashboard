@@ -4,8 +4,8 @@ services:
     name: business-dashboard-backend
     env: python
     plan: free
-    buildCommand: pip install -r requirements.txt && python manage.py migrate
-    startCommand: gunicorn config.wsgi:application --bind 0.0.0.0:$PORT
+    buildCommand: pip install -r requirements.txt
+    startCommand: python manage.py migrate && gunicorn config.wsgi:application --bind 0.0.0.0:$PORT
     autoDeploy: true
     
     # Environment variables (set these in Render dashboard)
