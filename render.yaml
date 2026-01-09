@@ -27,7 +27,7 @@ services:
   - type: pserv
     name: business-dashboard-db
     plan: free
-    databaseName: business_dashboard
+    databaseName: business-dashboard-db
     user: postgres
 
   # React Frontend Service  
