@@ -103,28 +103,20 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 # Database Configuration
-# Use DATABASE_URL if available (Render), otherwise use Supabase config
-database_url = os.environ.get('DATABASE_URL')
-if database_url and database_url.strip():
-    import dj_database_url
-    DATABASES = {
-        'default': dj_database_url.parse(database_url)
-    }
-else:
-    # Supabase configuration (fallback)
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.postgresql",
-            "NAME": "postgres",
-            "USER": "postgres",
-            "PASSWORD": "iamchosen1",
-            "HOST": "db.lpajeltvykjjfnhljocj.supabase.co",
-            "PORT": "5432",
-            "OPTIONS": {
-                "sslmode": "require",
-            }
+# Use Supabase configuration directly
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "postgres",
+        "USER": "postgres",
+        "PASSWORD": "iamchosen1",
+        "HOST": "db.lpajeltvykjjfnhljocj.supabase.co",
+        "PORT": "5432",
+        "OPTIONS": {
+            "sslmode": "require",
         }
     }
+}
 
 
 # Password validation
