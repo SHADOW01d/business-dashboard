@@ -103,15 +103,18 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 # Database Configuration
-# Simple PostgreSQL configuration
+# Render PostgreSQL configuration
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "postgres",
-        "USER": "postgres",
-        "PASSWORD": "iamchosen1",
-        "HOST": "localhost",
+        "NAME": "business_dashboard_db",
+        "USER": "business_dashboard_db_user",
+        "PASSWORD": "GoVQjYxEQRNWYcnodu3IdyPvSpR1gKi7",
+        "HOST": "dpg-d5g4fi6r433s73b1jma0-a.virginia-postgres.render.com",
         "PORT": "5432",
+        "OPTIONS": {
+            "sslmode": "require",
+        }
     }
 }
 
