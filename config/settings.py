@@ -112,15 +112,8 @@ else:
     # Development/local database configuration
     DATABASES = {
         "default": {
-            "ENGINE": "django.db.backends.postgresql",
-            "NAME": "business_dashboard_db",
-            "USER": "business_dashboard_db_user",
-            "PASSWORD": "GoVQjYxEQRNWYcnodu3IdyPvSpR1gKi7",
-            "HOST": "dpg-d5g4fi6r433s73b1jma0-a.virginia-postgres.render.com",
-            "PORT": "5432",
-            "OPTIONS": {
-                "sslmode": "require",
-            }
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
         }
     }
 
