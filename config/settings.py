@@ -110,7 +110,7 @@ if os.environ.get('DATABASE_URL'):
         'default': dj_database_url.parse(os.environ.get('DATABASE_URL'))
     }
 else:
-    # Supabase configuration
+    # Supabase configuration (fallback)
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.postgresql",
@@ -120,9 +120,7 @@ else:
             "HOST": "db.lpajeltvykjjfnhljocj.supabase.co",
             "PORT": "5432",
             "OPTIONS": {
-                "sslmode": "require",  # Required for Supabase
-                "connect_timeout": 60,  # Connection timeout
-                "options": "-c host=ipv4"  # Force IPv4
+                "sslmode": "require",
             }
         }
     }
