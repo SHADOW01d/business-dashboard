@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
+from django.views.decorators.csrf import csrf_exempt
 from .models import UserProfile, UserSettings
 from .serializers import UserSerializer, UserProfileSerializer, UserSettingsSerializer, UserRegistrationSerializer
 
@@ -17,6 +18,7 @@ class UserViewSet(viewsets.ModelViewSet):
         return User.objects.filter(id=self.request.user.id)
     
     @action(detail=False, methods=['post'], permission_classes=[AllowAny])
+    @csrf_exempt
     def register(self, request):
         """Register a new user"""
         serializer = UserRegistrationSerializer(data=request.data)
@@ -31,6 +33,7 @@ class UserViewSet(viewsets.ModelViewSet):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     @action(detail=False, methods=['post'], permission_classes=[AllowAny])
+    @csrf_exempt
     def login(self, request):
         """Login user"""
         username = request.data.get('username')
