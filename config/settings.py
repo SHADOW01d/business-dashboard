@@ -182,6 +182,7 @@ CORS_ALLOWED_ORIGINS = [
     
     # Production URLs
     "https://business-dashboard-frontend.onrender.com",
+    "https://business-dashboard-1frontend.onrender.com",
     "https://business-dashboard-1backend.onrender.com",
 ]
 
