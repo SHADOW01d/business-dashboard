@@ -1,0 +1,14 @@
+const handleStockAdded = (newStock) => {
+    // Check if stock exists before adding
+    const existingStock = stocks.find(s => s.id === newStock.id);
+    
+    if (!existingStock) {
+      // Stock item not found, show alert
+      setSuccessMessage(`❌ Stock item "${newStock.name}" not found! Please check the product name and try again.`);
+      setTimeout(() => setSuccessMessage(''), 3000);
+      return;
+    }
+    
+    setStocks([newStock, ...stocks]);
+    setShowStockForm(false);
+  };

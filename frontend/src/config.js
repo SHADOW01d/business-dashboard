@@ -1,5 +1,5 @@
 // API Configuration
-// This file determines the backend URL based on the environment
+// This file determines backend URL based on environment
 
 const getBackendURL = () => {
   // Use Vite environment variable if available (production)

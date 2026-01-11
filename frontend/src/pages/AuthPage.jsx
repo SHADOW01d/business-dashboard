@@ -7,6 +7,7 @@ export default function AuthPage({ onAuthSuccess, isDarkMode, setIsDarkMode }) {
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
   const [show2FA, setShow2FA] = useState(false);
@@ -24,6 +25,7 @@ export default function AuthPage({ onAuthSuccess, isDarkMode, setIsDarkMode }) {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
     setError('');
+    setSuccess('');
   };
 
   const getCsrfToken = async () => {
@@ -115,7 +117,20 @@ export default function AuthPage({ onAuthSuccess, isDarkMode, setIsDarkMode }) {
         }
         
         // No 2FA or registration, login directly
-        onAuthSuccess(userData);
+        if (isLogin) {
+          onAuthSuccess(userData);
+        } else {
+          // Registration successful - switch to login
+          setIsLogin(true);
+          setFormData(prev => ({
+            ...prev,
+            username: userData.username,
+            email: userData.email,
+            password: '',
+            password_confirm: ''
+          }));
+          setSuccess('Registration successful! Please login with your new account.');
+        }
       } else {
         // Handle different error response formats
         let errorMsg = 'An error occurred';
@@ -345,6 +360,12 @@ export default function AuthPage({ onAuthSuccess, isDarkMode, setIsDarkMode }) {
           {error && (
             <div style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid #ef4444', color: '#ef4444', padding: '12px', borderRadius: '8px', marginBottom: '16px', fontSize: '14px' }}>
               {error}
+            </div>
+          )}
+
+          {success && (
+            <div style={{ background: 'rgba(34, 197, 94, 0.1)', border: '1px solid #22c55e', color: '#22c55e', padding: '12px', borderRadius: '8px', marginBottom: '16px', fontSize: '14px' }}>
+              {success}
             </div>
           )}
 

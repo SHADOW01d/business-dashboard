@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { AlertTriangle, AlertCircle, Package } from 'lucide-react';
 import { API_BASE_URL } from '../config';
 
-export default function LowStockAlerts({ isDarkMode }) {
+export default function LowStockAlerts({ isDarkMode, isMobile }) {
   const [loading, setLoading] = useState(true);
   const [alertData, setAlertData] = useState(null);
   const [error, setError] = useState('');
@@ -63,79 +63,23 @@ export default function LowStockAlerts({ isDarkMode }) {
   }
 
   if (!alertData || alertData.total_alerts === 0) {
-    return (
-      <div style={{
-        background: 'rgba(16, 185, 129, 0.1)',
-        border: '1px solid #10b981',
-        borderRadius: '8px',
-        padding: '24px',
-        textAlign: 'center',
-      }}>
-        <Package color="#10b981" size={48} style={{ margin: '0 auto', marginBottom: '16px' }} />
-        <p style={{ color: '#10b981', fontSize: '16px', fontWeight: '600', margin: 0 }}>
-          ✓ All Stock Levels Healthy
-        </p>
-        <p style={{ color: secondaryText, fontSize: '14px', marginTop: '8px', margin: 0 }}>
-          No low stock alerts at this time
-        </p>
-      </div>
-    );
+    return null;
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-      {/* Alert Summary */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
-        gap: '16px',
+    <div style={{ marginBottom: '24px' }}>
+      <h3 style={{ 
+        fontSize: isMobile ? '16px' : '18px', 
+        fontWeight: 'bold', 
+        color: textColor, 
+        marginBottom: '16px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px'
       }}>
-        <div style={{
-          background: 'rgba(239, 68, 68, 0.1)',
-          borderRadius: '12px',
-          padding: '20px',
-          border: '1px solid #ef4444',
-          textAlign: 'center',
-        }}>
-          <p style={{ color: '#ef4444', fontSize: '12px', fontWeight: '600', margin: 0, marginBottom: '8px' }}>
-            Critical Alerts
-          </p>
-          <p style={{ fontSize: '32px', fontWeight: 'bold', color: '#ef4444', margin: 0 }}>
-            {alertData.critical_alerts}
-          </p>
-        </div>
-
-        <div style={{
-          background: 'rgba(245, 158, 11, 0.1)',
-          borderRadius: '12px',
-          padding: '20px',
-          border: '1px solid #f59e0b',
-          textAlign: 'center',
-        }}>
-          <p style={{ color: '#f59e0b', fontSize: '12px', fontWeight: '600', margin: 0, marginBottom: '8px' }}>
-            Warning Alerts
-          </p>
-          <p style={{ fontSize: '32px', fontWeight: 'bold', color: '#f59e0b', margin: 0 }}>
-            {alertData.warning_alerts}
-          </p>
-        </div>
-
-        <div style={{
-          background: cardBg,
-          borderRadius: '12px',
-          padding: '20px',
-          border: `1px solid ${borderColor}`,
-          textAlign: 'center',
-        }}>
-          <p style={{ color: secondaryText, fontSize: '12px', fontWeight: '600', margin: 0, marginBottom: '8px' }}>
-            Total Alerts
-          </p>
-          <p style={{ fontSize: '32px', fontWeight: 'bold', color: textColor, margin: 0 }}>
-            {alertData.total_alerts}
-          </p>
-        </div>
-      </div>
-
+        ⚠️ Stock Alerts
+      </h3>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       {/* Alert Items */}
       <div style={{
         background: cardBg,
@@ -236,30 +180,7 @@ export default function LowStockAlerts({ isDarkMode }) {
           ))}
         </div>
       </div>
-
-      {/* Legend */}
-      <div style={{
-        background: isDarkMode ? 'rgba(139, 92, 246, 0.1)' : 'rgba(139, 92, 246, 0.05)',
-        borderRadius: '8px',
-        padding: '16px',
-        fontSize: '12px',
-        color: secondaryText,
-      }}>
-        <p style={{ margin: 0, marginBottom: '8px', fontWeight: '600' }}>Alert Levels:</p>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '12px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <div style={{ width: '12px', height: '12px', borderRadius: '2px', background: '#ef4444' }}></div>
-            <span>Critical: Stock = 0</span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <div style={{ width: '12px', height: '12px', borderRadius: '2px', background: '#f59e0b' }}></div>
-            <span>Warning: Stock &lt; Min Level</span>
-          </div>
-        </div>
-        <p style={{ margin: 0, marginTop: '12px', fontStyle: 'italic' }}>
-          💡 Tip: Update min stock levels in your stock settings to receive alerts earlier
-        </p>
-      </div>
+    </div>
     </div>
   );
 }

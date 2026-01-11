@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Store, Plus, Check, ChevronDown } from 'lucide-react';
 import { API_BASE_URL } from '../config';
 
-export default function ShopSelector({ isDarkMode, onShopChange }) {
+export default function ShopSelector({ isDarkMode, onShopChange, isMobile }) {
   const [shops, setShops] = useState([]);
   const [activeShop, setActiveShop] = useState(null);
   const [showCreateShop, setShowCreateShop] = useState(false);
@@ -18,10 +18,11 @@ export default function ShopSelector({ isDarkMode, onShopChange }) {
         credentials: 'include',
       });
       const data = await response.json();
-      setShops(data);
+      const shopsArray = Array.isArray(data) ? data : data.results || [];
+      setShops(shopsArray);
       
       // Get active shop
-      const active = data.find(shop => shop.is_active);
+      const active = shopsArray.find(shop => shop.is_active);
       if (active) {
         setActiveShop(active);
         onShopChange(active);
@@ -213,8 +214,15 @@ export default function ShopSelector({ isDarkMode, onShopChange }) {
                       }
                     }}
                   >
-                    <span>{shop.name}</span>
-                    {shop.is_active && <Check size={14} />}
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '2px' }}>
+                      <span style={{ fontSize: '14px', fontWeight: '600', color: isDarkMode ? '#ffffff' : '#111827' }}>
+                        {shop.name}
+                      </span>
+                      <span style={{ fontSize: '11px', color: isDarkMode ? '#9ca3af' : '#6b7280', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        📍 {shop.location}
+                      </span>
+                    </div>
+                    {shop.is_active && <Check size={14} style={{ color: '#10b981' }} />}
                   </button>
                 ))}
               </div>

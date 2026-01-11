@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { X } from 'lucide-react';
 import { API_BASE_URL } from '../config';
 
-export default function StockForm({ onClose, onStockAdded, isDarkMode }) {
+export default function StockForm({ onClose, onStockAdded, isDarkMode, isMobile, activeShop }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [formData, setFormData] = useState({
@@ -56,6 +56,7 @@ export default function StockForm({ onClose, onStockAdded, isDarkMode }) {
           price: parseFloat(formData.price),
           quantity_in_stock: parseInt(formData.quantity_in_stock),
           min_stock_level: parseInt(formData.min_stock_level),
+          shop: activeShop?.id,
         }),
       });
 

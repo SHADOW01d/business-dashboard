@@ -3,7 +3,7 @@ import { Settings, Save, AlertCircle } from 'lucide-react';
 import { API_BASE_URL } from '../config';
 import { t } from '../translations';
 
-export default function SettingsPage({ isDarkMode, setIsDarkMode, language, onLanguageChange }) {
+export default function SettingsPage({ isDarkMode, setIsDarkMode, language, onLanguageChange, isMobile }) {
   const [settings, setSettings] = useState({
     theme: 'auto',
     email_notifications: true,

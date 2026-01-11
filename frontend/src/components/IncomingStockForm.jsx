@@ -2,10 +2,29 @@ import React, { useState } from 'react';
 import { X, Plus } from 'lucide-react';
 import { API_BASE_URL } from '../config';
 
-export default function IncomingStockForm({ stock, onClose, onStockUpdated, isDarkMode }) {
+export default function IncomingStockForm({ stockId, onClose, onStockUpdated, isDarkMode, isMobile }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [incomingQuantity, setIncomingQuantity] = useState('');
+  const [stock, setStock] = useState(null);
+
+  // Fetch stock data when component mounts
+  React.useEffect(() => {
+    if (stockId) {
+      setLoading(true);
+      fetch(`${API_BASE_URL}/api/stocks/${stockId}/`)
+        .then(response => response.json())
+        .then(data => {
+          setStock(data);
+          setLoading(false);
+        })
+        .catch(err => {
+          console.error('Failed to fetch stock:', err);
+          setError('Failed to load stock data');
+          setLoading(false);
+        });
+    }
+  }, [stockId]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -18,22 +37,24 @@ export default function IncomingStockForm({ stock, onClose, onStockUpdated, isDa
       return;
     }
 
+    if (!stock) {
+      setError('Stock data not available');
+      setLoading(false);
+      return;
+    }
+
     try {
-      const newQuantity = stock.quantity_in_stock + parseInt(incomingQuantity);
+      const newQuantity = (stock.quantity_in_stock || 0) + parseInt(incomingQuantity);
       
-      const response = await fetch(`${API_BASE_URL}/api/stocks/${stock.id}/`, {
-        method: 'PUT',
+      const response = await fetch(`${API_BASE_URL}/api/stocks/${stockId}/`, {
+        method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
           'X-CSRFToken': document.cookie.split('; ').find(row => row.startsWith('csrftoken='))?.split('=')[1] || '',
         },
         credentials: 'include',
         body: JSON.stringify({
-          name: stock.name,
-          category: stock.category,
-          price: stock.price,
           quantity_in_stock: newQuantity,
-          min_stock_level: stock.min_stock_level,
         }),
       });
 
@@ -114,7 +135,7 @@ export default function IncomingStockForm({ stock, onClose, onStockUpdated, isDa
             }}
           />
           <p style={{ color: labelColor, fontSize: '10px', marginTop: '4px', margin: 0 }}>
-            Current: {stock.quantity_in_stock} units → Will become: {stock.quantity_in_stock + (parseInt(incomingQuantity) || 0)} units
+            Current: {stock?.quantity_in_stock || 0} units → Will become: {(stock?.quantity_in_stock || 0) + (parseInt(incomingQuantity) || 0)} units
           </p>
         </div>
 

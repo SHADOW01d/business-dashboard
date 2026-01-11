@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import AuthPage from './pages/AuthPage';
-import Dashboard from './pages/Dashboard';
+import Dashboard from './pages/Dashboard_backup';
 import { API_BASE_URL } from './config';
 
 export default function App() {

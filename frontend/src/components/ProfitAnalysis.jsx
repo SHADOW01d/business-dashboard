@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { TrendingUp, TrendingDown } from 'lucide-react';
 import { API_BASE_URL } from '../config';
 
-export default function ProfitAnalysis({ isDarkMode }) {
+export default function ProfitAnalysis({ isDarkMode, isMobile }) {
   const [loading, setLoading] = useState(true);
   const [profitData, setProfitData] = useState(null);
   const [error, setError] = useState('');

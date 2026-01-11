@@ -66,6 +66,7 @@ INSTALLED_APPS = [
     'expenses.apps.ExpensesConfig',
     'security.apps.SecurityConfig',
     'analytics.apps.AnalyticsConfig',
+    'reports',
 ]
 
 MIDDLEWARE = [
@@ -84,7 +85,7 @@ ROOT_URLCONF = 'config.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'frontend' / 'dist'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -155,6 +156,10 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_DIRS = [BASE_DIR / 'frontend' / 'dist' / 'assets']
+STATICFILES_DIRS = [
+    BASE_DIR / 'frontend' / 'dist' / 'assets',
+]
 
 # Media files (uploads, user content)
 # https://docs.djangoproject.com/en/5.2/topics/files/
@@ -184,7 +189,7 @@ CORS_ALLOWED_ORIGINS = [
     "https://business-dashboard-frontend.onrender.com",
     "https://business-dashboard-1frontend.onrender.com",
     "https://business-dashboard-1backend.onrender.com",
-    "https://business-dashboard-1-ijxo.onrender.com",  # Your frontend
+    "https://business-dashboard-1-ijxo.onrender.com",  # Your actual frontend
 ]
 
 # Allow all origins for debugging (remove in production)

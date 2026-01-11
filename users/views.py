@@ -87,8 +87,11 @@ class UserViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'])
     def current_user(self, request):
         """Get current authenticated user"""
-        serializer = UserSerializer(request.user)
-        return Response(serializer.data)
+        if request.user.is_authenticated:
+            serializer = UserSerializer(request.user)
+            return Response(serializer.data)
+        else:
+            return Response({'error': 'Not authenticated'}, status=401)
 
 
 class UserProfileViewSet(viewsets.ModelViewSet):

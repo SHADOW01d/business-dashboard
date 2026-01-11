@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { TrendingUp, ShoppingCart, DollarSign, Plus, BarChart3, Settings, Menu, Calendar, Search, Moon, Sun, LogOut } from 'lucide-react';
 import { XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, AreaChart, Area } from 'recharts';
 import StockForm from '../components/StockForm';
@@ -65,8 +65,8 @@ export default function Dashboard({ user, onLogout, isDarkMode, setIsDarkMode })
     try {
       const [stocksRes, salesRes, expensesRes] = await Promise.all([
         fetch(`${API_BASE_URL}/api/stocks/`, { credentials: 'include' }),
-        fetch(`${API_BASE_URL}/api/sales/daily_summary/`, { credentials: 'include' }),
-        fetch(`${API_BASE_URL}/api/expenses/daily_summary/`, { credentials: 'include' }),
+        fetch(`${API_BASE_URL}/api/sales/`, { credentials: 'include' }),
+        fetch(`${API_BASE_URL}/api/expenses/`, { credentials: 'include' }),
       ]);
 
       if (stocksRes.ok) {
@@ -77,14 +77,14 @@ export default function Dashboard({ user, onLogout, isDarkMode, setIsDarkMode })
       let allSales = [];
       if (salesRes.ok) {
         const salesData = await salesRes.json();
-        allSales = salesData.sales || [];
+        allSales = Array.isArray(salesData) ? salesData : salesData.results || [];
         setSales(allSales);
       }
 
       let allExpenses = [];
       if (expensesRes.ok) {
         const expensesData = await expensesRes.json();
-        allExpenses = expensesData.expenses || [];
+        allExpenses = Array.isArray(expensesData) ? expensesData : expensesData.results || [];
         setExpenses(allExpenses);
       }
 
@@ -158,16 +158,53 @@ export default function Dashboard({ user, onLogout, isDarkMode, setIsDarkMode })
     setShowStockForm(false);
   };
 
-  const handleSaleAdded = (newSale) => {
+  const handleSaleAdded = (newSale, fromServer = false) => {
     setSales([newSale, ...sales]);
     setShowSalesForm(false);
-    // Refresh stocks to update quantity_sold
-    fetchData();
+    setSelectedStock(null); // Clear selected stock after sale
+    
+    // Update weekly chart data immediately
+    setWeeklyChartData(prevData => {
+      return prevData.map(dayData => {
+        const saleDate = new Date(newSale.created_at).toISOString().split('T')[0];
+        if (dayData.date === saleDate) {
+          return {
+            ...dayData,
+            income: dayData.income + parseFloat(newSale.total_amount || 0)
+          };
+        }
+        return dayData;
+      });
+    });
+
+    // Only refresh from server if the data came from server
+    if (fromServer) {
+      setTimeout(() => fetchData(), 1000); // Delay to allow server to process
+    }
   };
 
-  const handleExpenseAdded = (newExpense) => {
+  const handleExpenseAdded = (newExpense, fromServer = false) => {
     setExpenses([newExpense, ...expenses]);
     setShowExpenseForm(false);
+    
+    // Update weekly chart data immediately
+    setWeeklyChartData(prevData => {
+      return prevData.map(dayData => {
+        const expenseDate = new Date(newExpense.created_at).toISOString().split('T')[0];
+        if (dayData.date === expenseDate) {
+          return {
+            ...dayData,
+            expenses: dayData.expenses + parseFloat(newExpense.amount || 0)
+          };
+        }
+        return dayData;
+      });
+    });
+
+    // Only refresh from server if the data came from server
+    if (fromServer) {
+      setTimeout(() => fetchData(), 1000); // Delay to allow server to process
+    }
   };
 
   const handleDeleteStock = async (stockId) => {
@@ -212,10 +249,19 @@ export default function Dashboard({ user, onLogout, isDarkMode, setIsDarkMode })
   // Use the weekly chart data from state (persists across days)
   const dailyData = weeklyChartData.length > 0 ? weeklyChartData : [];
 
-  // Calculate totals from this week's data
-  const todayIncome = dailyData.reduce((sum, day) => sum + day.income, 0);
-  const totalExpensesAmount = dailyData.reduce((sum, day) => sum + day.expenses, 0);
-  const netProfit = todayIncome - totalExpensesAmount;
+  // Calculate totals from this week's data - reactive to weeklyChartData changes
+  const todayIncome = useMemo(() => 
+    dailyData.reduce((sum, day) => sum + day.income, 0), 
+    [dailyData]
+  );
+  const totalExpensesAmount = useMemo(() => 
+    dailyData.reduce((sum, day) => sum + day.expenses, 0), 
+    [dailyData]
+  );
+  const netProfit = useMemo(() => 
+    todayIncome - totalExpensesAmount, 
+    [todayIncome, totalExpensesAmount]
+  );
 
   // Filter sales and expenses based on search term
   const filteredSales = sales.filter(sale =>
@@ -591,7 +637,7 @@ export default function Dashboard({ user, onLogout, isDarkMode, setIsDarkMode })
               {/* Stats Cards */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px', marginBottom: '32px' }}>
                 {[
-                  { label: "Today's Income", value: todayIncome.toLocaleString(), icon: DollarSign, color: '#10b981', trend: 'Total revenue' },
+                  { label: "Today's Revenue", value: todayIncome.toLocaleString(), icon: DollarSign, color: '#10b981', trend: 'Total revenue' },
                   { label: 'Total Expenses', value: totalExpensesAmount.toLocaleString(), icon: BarChart3, color: '#ef4444', trend: 'All expenses' },
                   { label: 'Net Profit', value: netProfit.toLocaleString(), icon: TrendingUp, color: '#3b82f6', trend: 'Income - Expenses' },
                   { label: 'Total Stocks', value: stocks.length, icon: ShoppingCart, color: '#f97316', trend: 'Active products' },
@@ -629,7 +675,7 @@ export default function Dashboard({ user, onLogout, isDarkMode, setIsDarkMode })
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '24px' }}>
                 <div style={{ background: cardBg, borderRadius: '16px', padding: '24px', border: `1px solid ${borderColor}`, gridColumn: 'span 2' }}>
                   <h2 style={{ fontSize: '18px', fontWeight: 'bold', color: textColor, marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <TrendingUp color="#60a5fa" /> Income & Expenses Comparison
+                    <TrendingUp color="#60a5fa" /> Revenue & Expenses Comparison
                   </h2>
                   <ResponsiveContainer width="100%" height={300}>
                     <AreaChart data={dailyData} margin={{ top: 20, right: 30, left: 60, bottom: 0 }}>
@@ -673,7 +719,7 @@ export default function Dashboard({ user, onLogout, isDarkMode, setIsDarkMode })
                         dataKey="income" 
                         stroke="#22c55e" 
                         fill="url(#incomeGradient)" 
-                        name="Income"
+                        name="Revenue"
                         strokeWidth={2}
                       />
                       <Area 
@@ -863,7 +909,7 @@ export default function Dashboard({ user, onLogout, isDarkMode, setIsDarkMode })
                 </button>
               </div>
 
-              {showExpenseForm && <ExpenseForm onClose={() => setShowExpenseForm(false)} onExpenseAdded={handleExpenseAdded} isDarkMode={isDarkMode} />}
+              {showExpenseForm && <ExpenseForm onClose={() => setShowExpenseForm(false)} onExpenseAdded={handleExpenseAdded} isDarkMode={isDarkMode} isMobile={isMobile} activeShop={activeShop} />}
 
               {filteredExpenses.length === 0 ? (
                 <div style={{ textAlign: 'center', paddingTop: '64px', paddingBottom: '64px' }}>
@@ -990,6 +1036,7 @@ export default function Dashboard({ user, onLogout, isDarkMode, setIsDarkMode })
               }}
               onSaleAdded={handleSaleAdded}
               isDarkMode={isDarkMode}
+              activeShop={activeShop}
             />
           )}
         </>
@@ -1001,6 +1048,8 @@ export default function Dashboard({ user, onLogout, isDarkMode, setIsDarkMode })
           onClose={() => setShowExpenseForm(false)}
           onExpenseAdded={handleExpenseAdded}
           isDarkMode={isDarkMode}
+          isMobile={isMobile}
+          activeShop={activeShop}
         />
       )}
 

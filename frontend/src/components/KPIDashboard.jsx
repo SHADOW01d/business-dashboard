@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Target, TrendingUp, TrendingDown, Star } from 'lucide-react';
 
-export default function KPIDashboard({ sales, isDarkMode }) {
+export default function KPIDashboard({ sales, isDarkMode, isMobile }) {
   const [dailyTarget, setDailyTarget] = useState(() => {
     // Load from localStorage on initial mount
     const saved = localStorage.getItem('dailyTarget');
