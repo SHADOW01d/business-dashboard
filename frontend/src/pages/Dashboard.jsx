@@ -953,7 +953,13 @@ export default function Dashboard({ user, onLogout, isDarkMode, setIsDarkMode })
           )}
 
           {activeNav === 'settings' && (
-            <SettingsPage isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} language={language} onLanguageChange={(newLang) => { setLanguage(newLang); fetchUserSettings(); }} />
+            <SettingsPage 
+              isDarkMode={isDarkMode} 
+              setIsDarkMode={setIsDarkMode} 
+              language={language} 
+              onLanguageChange={(newLang) => { setLanguage(newLang); fetchUserSettings(); }} 
+              onClose={() => setActiveNav('dashboard')}
+            />
           )}
         </div>
       </div>
