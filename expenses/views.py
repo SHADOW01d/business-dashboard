@@ -1,7 +1,7 @@
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated
 from django.utils import timezone
 from datetime import timedelta
 from .models import Expense
@@ -11,7 +11,7 @@ from .serializers import ExpenseSerializer
 class ExpenseViewSet(viewsets.ModelViewSet):
     """Expense management"""
     serializer_class = ExpenseSerializer
-    permission_classes = [AllowAny]  # Allow unauthenticated for cross-domain debugging
+    permission_classes = [IsAuthenticated]
     
     def get_queryset(self):
         """Get expenses for current user"""

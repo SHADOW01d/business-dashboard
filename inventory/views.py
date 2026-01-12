@@ -1,7 +1,7 @@
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated
 from django.db.models import Q
 from .models import Stock, StockHistory
 from .serializers import StockSerializer, StockHistorySerializer
@@ -10,7 +10,7 @@ from .serializers import StockSerializer, StockHistorySerializer
 class StockViewSet(viewsets.ModelViewSet):
     """Stock management"""
     serializer_class = StockSerializer
-    permission_classes = [AllowAny]  # Allow unauthenticated for cross-domain debugging
+    permission_classes = [IsAuthenticated]
     
     def get_queryset(self):
         """Get stocks for current user and active shop"""
