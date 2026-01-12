@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { AlertTriangle, AlertCircle, Package } from 'lucide-react';
 import { API_BASE_URL } from '../config';
+import { getCsrfToken } from '../utils/csrf';
 
 export default function LowStockAlerts({ isDarkMode, isMobile }) {
   const [loading, setLoading] = useState(true);
@@ -13,7 +14,9 @@ export default function LowStockAlerts({ isDarkMode, isMobile }) {
 
   const fetchLowStockAlerts = async () => {
     try {
+      const csrfToken = await getCsrfToken();
       const response = await fetch(`${API_BASE_URL}/api/sales/low_stock_alerts/`, {
+        method: 'GET',
         credentials: 'include',
       });
 

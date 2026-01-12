@@ -4,6 +4,7 @@ import Dashboard from './pages/Dashboard_backup';
 import { API_BASE_URL } from './config';
 import { getCsrfTokenWithFallback } from './utils/csrf';
 import { runFullDebug } from './utils/apiDebug';
+import { runAllTests } from './utils/testAPI';
 
 export default function App() {
   const [isDarkMode, setIsDarkMode] = useState(true);
@@ -18,7 +19,10 @@ export default function App() {
     // Debug: Make debug functions available in console
     if (import.meta.env.DEV || window.location.hostname.includes('onrender.com')) {
       window.runFullDebug = runFullDebug;
-      console.log('🔍 Debug functions available. Run runFullDebug() in console to test API.');
+      window.runAllTests = runAllTests;
+      console.log('🔍 Debug functions available. Run:');
+      console.log('  runFullDebug() - Full API debug suite');
+      console.log('  runAllTests() - Test all API endpoints');
     }
   }, []);
 

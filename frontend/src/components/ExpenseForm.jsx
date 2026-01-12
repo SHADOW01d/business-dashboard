@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { X } from 'lucide-react';
+import { DollarSign, Plus, X } from 'lucide-react';
 import { API_BASE_URL } from '../config';
+import { getCsrfToken } from '../utils/csrf';
 
 export default function ExpenseForm({ onClose, onExpenseAdded, isDarkMode, isMobile, activeShop }) {
   const [loading, setLoading] = useState(false);
@@ -58,16 +59,17 @@ export default function ExpenseForm({ onClose, onExpenseAdded, isDarkMode, isMob
     }
 
     try {
+      const csrfToken = await getCsrfToken();
       const response = await fetch(`${API_BASE_URL}/api/expenses/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-CSRFToken': document.cookie.split('; ').find(row => row.startsWith('csrftoken='))?.split('=')[1] || '',
+          'X-CSRFToken': csrfToken || '',
         },
         credentials: 'include',
         body: JSON.stringify({
           category: formData.category,
-          description: formData.description,
+          description: formData.description.trim(),
           amount: parseFloat(formData.amount),
           shop: activeShop?.id,
         }),

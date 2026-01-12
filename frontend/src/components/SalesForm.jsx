@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Plus } from 'lucide-react';
 import { API_BASE_URL } from '../config';
+import { getCsrfToken } from '../utils/csrf';
 
 export default function SalesForm({ stock, onClose, onSaleAdded, isDarkMode, isMobile, activeShop }) {
   const [loading, setLoading] = useState(false);
@@ -39,18 +40,19 @@ export default function SalesForm({ stock, onClose, onSaleAdded, isDarkMode, isM
     }
 
     try {
+      const csrfToken = await getCsrfToken();
       const response = await fetch(`${API_BASE_URL}/api/sales/`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
-          'X-CSRFToken': document.cookie.split('; ').find(row => row.startsWith('csrftoken='))?.split('=')[1] || '',
+          'X-CSRFToken': csrfToken || '',
         },
         credentials: 'include',
         body: JSON.stringify({
           stock: stock?.id,
           quantity: quantity,
-          price_per_unit: stock && stock.price ? parseFloat(stock.price) : 0,
-          total_amount: totalAmount || (stock && stock.price ? quantity * parseFloat(stock.price) : 0),
+          unit_price: stock?.price,
+          total_amount: totalAmount,
           shop: activeShop?.id,
         }),
       });
