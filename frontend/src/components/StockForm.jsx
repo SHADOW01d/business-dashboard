@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { X } from 'lucide-react';
+import { Plus, X } from 'lucide-react';
 import { API_BASE_URL } from '../config';
+import { getCsrfToken } from '../utils/csrf';
 
 export default function StockForm({ onClose, onStockAdded, isDarkMode, isMobile, activeShop }) {
   const [loading, setLoading] = useState(false);
@@ -43,11 +44,12 @@ export default function StockForm({ onClose, onStockAdded, isDarkMode, isMobile,
     }
 
     try {
+      const csrfToken = await getCsrfToken();
       const response = await fetch(`${API_BASE_URL}/api/stocks/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-CSRFToken': document.cookie.split('; ').find(row => row.startsWith('csrftoken='))?.split('=')[1] || '',
+          'X-CSRFToken': csrfToken || '',
         },
         credentials: 'include',
         body: JSON.stringify({

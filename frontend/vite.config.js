@@ -37,5 +37,11 @@ export default defineConfig({
   preview: {
     port: 3000,
     strictPort: false
+  },
+  // Production proxy configuration for Render
+  define: {
+    // For production, we'll use direct API calls
+    // Uncomment below if you want to use proxy in production
+    // __VITE_USE_PROXY__: JSON.stringify(process.env.NODE_ENV === 'production')
   }
 })

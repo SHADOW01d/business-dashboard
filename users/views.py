@@ -5,6 +5,8 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.views.decorators.csrf import csrf_exempt
+from django.middleware.csrf import get_token
+from django.http import JsonResponse
 from .models import UserProfile, UserSettings
 from .serializers import UserSerializer, UserProfileSerializer, UserSettingsSerializer, UserRegistrationSerializer
 
@@ -92,6 +94,11 @@ class UserViewSet(viewsets.ModelViewSet):
             return Response(serializer.data)
         else:
             return Response({'error': 'Not authenticated'}, status=401)
+    
+    @action(detail=False, methods=['get'], permission_classes=[AllowAny])
+    def csrf(self, request):
+        """Get CSRF token for frontend"""
+        return JsonResponse({'csrfToken': get_token(request)})
 
 
 class UserProfileViewSet(viewsets.ModelViewSet):

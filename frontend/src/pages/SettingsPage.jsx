@@ -59,8 +59,30 @@ export default function SettingsPage({ isDarkMode, setIsDarkMode, language, onLa
   const fetchSettings = async () => {
     setLoading(true);
     try {
+      // Try to load from localStorage first
+      const savedDisplaySettings = localStorage.getItem('displaySettings');
+      const savedBusinessSettings = localStorage.getItem('businessSettings');
+      
+      if (savedDisplaySettings) {
+        try {
+          const parsed = JSON.parse(savedDisplaySettings);
+          setDisplaySettings(prev => ({ ...prev, ...parsed }));
+        } catch (e) {
+          console.log('Failed to parse display settings from localStorage');
+        }
+      }
+      
+      if (savedBusinessSettings) {
+        try {
+          const parsed = JSON.parse(savedBusinessSettings);
+          setBusinessSettings(prev => ({ ...prev, ...parsed }));
+        } catch (e) {
+          console.log('Failed to parse business settings from localStorage');
+        }
+      }
+      
       // Try to fetch from API, but don't fail if it doesn't exist
-      const response = await fetch(`${API_BASE_URL}/api/settings/my_settings/`, {
+      const response = await fetch(`${API_BASE_URL}/api/auth/settings/my_settings/`, {
         credentials: 'include',
       });
       if (response.ok) {
@@ -71,7 +93,7 @@ export default function SettingsPage({ isDarkMode, setIsDarkMode, language, onLa
         if (data.theme) setDisplaySettings(prev => ({ ...prev, theme: data.theme }));
       }
     } catch (err) {
-      console.log('Settings API not available, using defaults');
+      console.log('Settings API not available, using localStorage defaults');
     } finally {
       setLoading(false);
     }
@@ -79,7 +101,7 @@ export default function SettingsPage({ isDarkMode, setIsDarkMode, language, onLa
 
   const fetchProfile = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/users/profile/`, {
+      const response = await fetch(`${API_BASE_URL}/api/auth/profiles/`, {
         credentials: 'include',
       });
       if (response.ok) {
@@ -100,34 +122,49 @@ export default function SettingsPage({ isDarkMode, setIsDarkMode, language, onLa
       // Save daily target to localStorage
       localStorage.setItem('dailyTarget', businessSettings.dailyTarget.toString());
       
-      // Save other settings to API if needed
-      const response = await fetch(`${API_BASE_URL}/api/settings/update_settings/`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': document.cookie.split('; ').find(row => row.startsWith('csrftoken='))?.split('=')[1] || '',
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          currency: businessSettings.currency,
-          language: displaySettings.language,
-          theme: displaySettings.theme,
-          items_per_page: displaySettings.itemsPerPage,
-          date_format: displaySettings.dateFormat
-        }),
-      });
+      // Save display settings to localStorage as fallback
+      localStorage.setItem('displaySettings', JSON.stringify(displaySettings));
+      localStorage.setItem('businessSettings', JSON.stringify(businessSettings));
+      
+      // Try to save to API
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/auth/settings/update_settings/`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.cookie.split('; ').find(row => row.startsWith('csrftoken='))?.split('=')[1] || '',
+          },
+          credentials: 'include',
+          body: JSON.stringify({
+            currency: businessSettings.currency,
+            language: displaySettings.language,
+            theme: displaySettings.theme,
+            items_per_page: displaySettings.itemsPerPage,
+            date_format: displaySettings.dateFormat
+          }),
+        });
 
-      if (response.ok) {
-        setMessage('Business settings saved successfully!');
-        // Update theme if changed
-        if (displaySettings.theme !== 'auto') {
-          setIsDarkMode(displaySettings.theme === 'dark');
+        if (response.ok) {
+          setMessage('Settings saved successfully!');
+        } else {
+          // API failed but localStorage worked
+          setMessage('Settings saved locally!');
         }
-        // Update language if changed
-        if (displaySettings.language !== language && onLanguageChange) {
-          onLanguageChange(displaySettings.language);
-        }
+      } catch (apiError) {
+        // API failed but localStorage worked
+        setMessage('Settings saved locally!');
+        console.log('API save failed, using localStorage:', apiError);
       }
+      
+      // Update theme if changed
+      if (displaySettings.theme !== 'auto') {
+        setIsDarkMode(displaySettings.theme === 'dark');
+      }
+      // Update language if changed
+      if (displaySettings.language !== language && onLanguageChange) {
+        onLanguageChange(displaySettings.language);
+      }
+      
       setTimeout(() => setMessage(''), 3000);
     } catch (err) {
       setError('Failed to save settings');
@@ -142,7 +179,7 @@ export default function SettingsPage({ isDarkMode, setIsDarkMode, language, onLa
     setError('');
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/users/profile/`, {
+      const response = await fetch(`${API_BASE_URL}/api/auth/profiles/`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

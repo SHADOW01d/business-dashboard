@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ShoppingCart, Moon, Sun, Eye, EyeOff } from 'lucide-react';
 import { API_BASE_URL } from '../config';
+import { getCsrfToken } from '../utils/csrf';
 import TwoFactorVerification from '../components/TwoFactorVerification';
 
 export default function AuthPage({ onAuthSuccess, isDarkMode, setIsDarkMode }) {
@@ -28,40 +29,14 @@ export default function AuthPage({ onAuthSuccess, isDarkMode, setIsDarkMode }) {
     setSuccess('');
   };
 
-  const getCsrfToken = async () => {
-    try {
-      // Make a GET request to any endpoint to trigger CSRF token generation
-      await fetch(`${API_BASE_URL}/api/auth/`, {
-        method: 'GET',
-        credentials: 'include',
-      });
-    } catch (err) {
-      console.log('CSRF token fetch attempt');
-    }
-    
-    // Extract CSRF token from cookies
-    const name = 'csrftoken';
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-      const cookies = document.cookie.split(';');
-      for (let i = 0; i < cookies.length; i++) {
-        const cookie = cookies[i].trim();
-        if (cookie.substring(0, name.length + 1) === (name + '=')) {
-          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-          break;
-        }
-      }
-    }
-    return cookieValue;
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
+    setSuccess('');
 
     try {
-      // Get CSRF token first
+      // Get CSRF token using new utility
       const csrfToken = await getCsrfToken();
       
       const endpoint = isLogin ? 'login' : 'register';

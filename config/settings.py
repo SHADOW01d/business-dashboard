@@ -29,7 +29,6 @@ DEBUG = os.environ.get('DEBUG', 'True').lower() == 'true'
 
 # Dynamic ALLOWED_HOSTS for Render and local development
 ALLOWED_HOSTS = [
-    '*',  # Allow all hosts for development
     'localhost',
     '127.0.0.1',
     '192.168.1.162',  # Your network IP
@@ -42,8 +41,10 @@ ALLOWED_HOSTS = [
 
 # Add Render hosts from environment or default
 if not DEBUG:
-    render_hosts = os.environ.get('ALLOWED_HOSTS', '.onrender.com,business-dashboard-1backend.onrender.com')
+    render_hosts = os.environ.get('ALLOWED_HOSTS', '.onrender.com,business-dashboard-1backend.onrender.com,business-dashboard-1-ijxo.onrender.com')
     ALLOWED_HOSTS.extend([host.strip() for host in render_hosts.split(',')])
+    # Explicitly add the exact frontend URL
+    ALLOWED_HOSTS.append('business-dashboard-1-ijxo.onrender.com')
 
 
 # Application definition
@@ -254,19 +255,36 @@ if not DEBUG:
     SECURE_BROWSER_XSS_FILTER = True
     X_FRAME_OPTIONS = 'DENY'
     
+    # ADD YOUR EXACT FRONTEND URL HERE:
+    FRONTEND_URL = "https://business-dashboard-1-ijxo.onrender.com"
+    
     # Update CSRF and CORS for production
     CSRF_TRUSTED_ORIGINS = [
-        "https://business-dashboard-frontend.onrender.com",
-        "https://business-dashboard-1backend.onrender.com",
+        "https://business-dashboard-1-ijxo.onrender.com",  # Frontend
+        "https://business-dashboard-1backend.onrender.com",  # Backend
     ]
     
     CORS_ALLOWED_ORIGINS = [
-        "https://business-dashboard-frontend.onrender.com",
-        "https://business-dashboard-1backend.onrender.com",
+        "https://business-dashboard-1-ijxo.onrender.com",  # Frontend
+        "https://business-dashboard-1backend.onrender.com",  # Backend
     ]
+    CORS_ALLOW_CREDENTIALS = True
     
-    # Session security
-    SESSION_COOKIE_SECURE = True
-    SESSION_COOKIE_HTTPONLY = True
-    SESSION_COOKIE_SAMESITE = 'Lax'
-    CSRF_COOKIE_SECURE = True
+    # COOKIE SETTINGS - MOST IMPORTANT:
+    SESSION_COOKIE_SAMESITE = 'None'  # Must be None for cross-domain
+    CSRF_COOKIE_SAMESITE = 'None'     # Must be None for cross-domain
+    SESSION_COOKIE_SECURE = True      # Must be True when SameSite=None
+    CSRF_COOKIE_SECURE = True         # Must be True when SameSite=None
+    CSRF_COOKIE_DOMAIN = '.onrender.com'  # Allow sharing across subdomains
+    
+    # Optional: Set cookie domain for sharing
+    SESSION_COOKIE_DOMAIN = '.onrender.com'
+    
+    CORS_ALLOW_HEADERS = [
+        'content-type',
+        'authorization',
+        'x-csrftoken',
+        'accept',
+        'origin',
+        'x-requested-with',
+    ]

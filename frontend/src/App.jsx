@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import AuthPage from './pages/AuthPage';
 import Dashboard from './pages/Dashboard_backup';
 import { API_BASE_URL } from './config';
+import { getCsrfTokenWithFallback } from './utils/csrf';
+import { runFullDebug } from './utils/apiDebug';
 
 export default function App() {
   const [isDarkMode, setIsDarkMode] = useState(true);
@@ -10,8 +12,14 @@ export default function App() {
 
   useEffect(() => {
     // Get CSRF token first, then check auth
-    getCsrfToken();
+    getCsrfTokenWithFallback();
     checkAuth();
+    
+    // Debug: Make debug functions available in console
+    if (import.meta.env.DEV || window.location.hostname.includes('onrender.com')) {
+      window.runFullDebug = runFullDebug;
+      console.log('🔍 Debug functions available. Run runFullDebug() in console to test API.');
+    }
   }, []);
 
   const getCsrfToken = async () => {
@@ -62,7 +70,7 @@ export default function App() {
 
   const handleLogout = async () => {
     try {
-      const csrfToken = getCsrfTokenFromCookie();
+      const csrfToken = await getCsrfTokenWithFallback();
       await fetch(`${API_BASE_URL}/api/auth/logout/`, {
         method: 'POST',
         headers: { 
