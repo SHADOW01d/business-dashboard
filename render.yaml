@@ -15,20 +15,13 @@ services:
       - key: SECRET_KEY
         generateValue: true
       - key: DATABASE_URL
-        fromDatabase:
-          name: business-dashboard-db
-          property: connectionString
+        value: postgresql://postgres:iamchosen1@db.lpajeltvykjjfnhljocj.supabase.co:5432/postgres
       - key: ALLOWED_HOSTS
-        value: .onrender.com
+        value: .onrender.com,business-dashboard-1backend.onrender.com
       - key: CORS_ALLOWED_ORIGINS
-        value: https://business-dashboard-frontend.onrender.com
-
-  # PostgreSQL Database (if not using Supabase)
-  - type: pserv
-    name: business-dashboard-db
-    plan: free
-    databaseName: business-dashboard-db
-    user: postgres
+        value: https://business-dashboard-frontend.onrender.com,https://business-dashboard-1backend.onrender.com,https://business-dashboard-1-ijxo.onrender.com
+      - key: CSRF_TRUSTED_ORIGINS
+        value: https://business-dashboard-frontend.onrender.com,https://business-dashboard-1backend.onrender.com,https://business-dashboard-1-ijxo.onrender.com
 
   # React Frontend Service  
   - type: web

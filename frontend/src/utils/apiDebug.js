@@ -152,7 +152,76 @@ export const runFullDebug = async () => {
   console.log('✅ Debug suite complete');
 };
 
+// Enhanced API debugging function as requested
+export const debugAPIRequest = async (endpoint, method = 'GET', data = null) => {
+  const url = `${import.meta.env.VITE_API_URL}${endpoint}`;
+  console.log(`🔄 ${method} ${url}`);
+  
+  const headers = {
+    'Content-Type': 'application/json',
+  };
+  
+  // Try to get CSRF token
+  const csrfToken = getCsrfTokenFromCookie();
+  if (csrfToken && method !== 'GET') {
+    headers['X-CSRFToken'] = csrfToken;
+    console.log('📋 CSRF Token found:', csrfToken.substring(0, 20) + '...');
+  } else {
+    console.warn('⚠️ No CSRF token found for non-GET request');
+  }
+  
+  console.log('🍪 Current cookies:', document.cookie);
+  
+  const options = {
+    method,
+    headers,
+    credentials: 'include',  // This sends cookies
+  };
+  
+  if (data && method !== 'GET') {
+    options.body = JSON.stringify(data);
+  }
+  
+  try {
+    const response = await fetch(url, options);
+    
+    console.log(`📊 Response Status: ${response.status} ${response.statusText}`);
+    
+    // Log all response headers
+    console.log('📨 Response Headers:');
+    response.headers.forEach((value, key) => {
+      console.log(`  ${key}: ${value}`);
+    });
+    
+    const responseText = await response.text();
+    console.log('📄 Response Body:', responseText);
+    
+    // Try to parse as JSON
+    try {
+      return JSON.parse(responseText);
+    } catch {
+      return { error: 'Invalid JSON', text: responseText };
+    }
+    
+  } catch (error) {
+    console.error('❌ Fetch Error:', error);
+    return { error: error.message };
+  }
+};
+
+// Helper function to get CSRF token from cookies
+const getCsrfTokenFromCookie = () => {
+  const cookies = document.cookie.split(';').reduce((acc, cookie) => {
+    const [name, value] = cookie.trim().split('=');
+    acc[name] = value;
+    return acc;
+  }, {});
+  
+  return cookies.csrftoken || null;
+};
+
 // Auto-run debug in development
 if (import.meta.env.DEV) {
   console.log('🔧 Development mode detected. Run runFullDebug() to test API connectivity.');
+  console.log('💡 Use debugAPIRequest(endpoint, method, data) for detailed API request debugging');
 }

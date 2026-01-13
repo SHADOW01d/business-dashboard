@@ -105,18 +105,20 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 # Database Configuration
-# Use DATABASE_URL in production (Render), fallback to hardcoded config for development
-database_url = os.environ.get('DATABASE_URL')
-if database_url and database_url.strip():
+# Default to SQLite for development, PostgreSQL for production
+if 'DATABASE_URL' in os.environ:
     DATABASES = {
-        'default': dj_database_url.parse(database_url)
+        'default': dj_database_url.config(
+            default=os.environ.get('DATABASE_URL'),
+            conn_max_age=600,
+            conn_health_checks=True,
+        )
     }
 else:
-    # Development/local database configuration
     DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.sqlite3",
-            "NAME": BASE_DIR / "db.sqlite3",
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
         }
     }
 
@@ -288,3 +290,27 @@ if not DEBUG:
         'origin',
         'x-requested-with',
     ]
+
+# CRITICAL FIX: Always allow authentication in production
+# Add environment-based override for Render
+if os.environ.get('RENDER_SERVICE_ID'):
+    # We're on Render - ensure authentication works
+    CORS_ALLOWED_ORIGINS = [
+        "https://business-dashboard-1-ijxo.onrender.com",
+        "https://business-dashboard-1backend.onrender.com",
+        "https://business-dashboard-frontend.onrender.com",
+    ]
+    CSRF_TRUSTED_ORIGINS = [
+        "https://business-dashboard-1-ijxo.onrender.com",
+        "https://business-dashboard-1backend.onrender.com",
+        "https://business-dashboard-frontend.onrender.com",
+    ]
+    CORS_ALLOW_CREDENTIALS = True
+    
+    # Fix cookie settings for cross-domain
+    SESSION_COOKIE_SAMESITE = 'None'
+    CSRF_COOKIE_SAMESITE = 'None'
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SESSION_COOKIE_DOMAIN = '.onrender.com'
+    CSRF_COOKIE_DOMAIN = '.onrender.com'
